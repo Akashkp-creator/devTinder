@@ -1,0 +1,19 @@
+{
+  "name": "devtinder",
+  "version": "1.0.0",
+  "description": "tinder for developers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node",
+    "js",
+    "javascript"
+  ],
+  "author": "Akash K P",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
