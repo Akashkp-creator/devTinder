@@ -1,43 +1,28 @@
 const express = require("express");
 const app = express();
-// NOTE: if u make use of  "use" if will be applicable for all the http methods,like GET,POST etc.
-// type-1
+const { adminAuth, userAuth } = require("./middlewares/auth");
 
-// app.use("/user", (req, res, next) => {
-//   console.log("Namaste from Akash1");
-//   // res.send("Mulitiple route handler 1");
-//   next();
-// });
+// Since v used "use" it will be applicable for all the http methods(ie.get,post,delete etc.)
+// the below route is handled when v use "/admin", "/admin/user", "/admin/anything", "/admin/:userId"
+app.use("/admin", adminAuth);
 
-// app.use("/user", (req, res, next) => {
-//   console.log("Namaste from Akash2");
-//   res.send("Mulitiple route handler 2");
-// });
+app.get("/admin/data", (req, res) => {
+  console.log("Admin Data ");
+  res.send("This is admin Data");
+});
+app.get("/user/getAllData", userAuth, (req, res) => {
+  console.log("User DATA GETTING");
+  res.send("This is User DATA");
+});
 
-// type 2
+app.post("/user/login", (req, res) => {
+  res.send("User lOgged in successfully");
+});
 
-app.use(
-  "/user",
-  (req, res, next) => {
-    console.log("Namaste from Akash1");
-    next();
-  },
-  // note v can also place it in the array it will work same as without array
-  [
-    (req, res, next) => {
-      console.log("Namaste from Akash2");
-      next();
-    },
-    (req, res, next) => {
-      console.log("Namaste from Akash3");
-      next();
-    },
-  ],
-  (req, res, next) => {
-    console.log("Namaste from Akash4");
-    res.send("Mulitiple route handler 4");
-  }
-);
+app.delete("/admin/remove", (req, res) => {
+  console.log("Admin Removed ");
+  res.send("Admin data is removed");
+});
 
 app.listen(3000, () => {
   console.log("Server is listening to the port 3000...");
