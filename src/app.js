@@ -10,20 +10,22 @@ const app = express();
 //   console.log(`${req.url}`);
 //   res.send("namaste from Akash");
 // });
-app.post("/test1", (req, res) => {
+app.post("/user/:userId/:name/:password", (req, res) => {
+  console.log(req.params);
   res.send("Hi this is test1... for post.");
 });
-app.get("/test1", (req, res) => {
-  res.send("hyyy this is get test1");
+app.get("/user", (req, res) => {
+  console.log(req.query);
+  res.send("hi this is get test1");
 });
 
-app.put("/test1", (req, res) => {
-  res.send("hyyy this is put test1");
-});
+// app.put("/test1", (req, res) => {
+//   res.send("hyyy this is put test1");
+// });
 
-app.delete("/test1", (req, res) => {
-  res.send("Hyyy this test1 from delete");
-});
+// app.delete("/test1", (req, res) => {
+//   res.send("Hyyy this test1 from delete");
+// });
 app.listen(3000, () => {
   console.log("Server is listening to the port 3000...");
 });
