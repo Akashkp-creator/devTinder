@@ -1,31 +1,44 @@
 const express = require("express");
 const app = express();
+// NOTE: if u make use of  "use" if will be applicable for all the http methods,like GET,POST etc.
+// type-1
 
-// app.use("/hello2", (req, res) => {
-//   res.send("Hyyy this is hello2 testing");
+// app.use("/user", (req, res, next) => {
+//   console.log("Namaste from Akash1");
+//   // res.send("Mulitiple route handler 1");
+//   next();
 // });
 
-// app.use("/", (req, res) => {
-//   console.log("Namaste from Akash");
-//   console.log(`${req.url}`);
-//   res.send("namaste from Akash");
-// });
-app.post("/user/:userId/:name/:password", (req, res) => {
-  console.log(req.params);
-  res.send("Hi this is test1... for post.");
-});
-app.get("/user", (req, res) => {
-  console.log(req.query);
-  res.send("hi this is get test1");
-});
-
-// app.put("/test1", (req, res) => {
-//   res.send("hyyy this is put test1");
+// app.use("/user", (req, res, next) => {
+//   console.log("Namaste from Akash2");
+//   res.send("Mulitiple route handler 2");
 // });
 
-// app.delete("/test1", (req, res) => {
-//   res.send("Hyyy this test1 from delete");
-// });
+// type 2
+
+app.use(
+  "/user",
+  (req, res, next) => {
+    console.log("Namaste from Akash1");
+    next();
+  },
+  // note v can also place it in the array it will work same as without array
+  [
+    (req, res, next) => {
+      console.log("Namaste from Akash2");
+      next();
+    },
+    (req, res, next) => {
+      console.log("Namaste from Akash3");
+      next();
+    },
+  ],
+  (req, res, next) => {
+    console.log("Namaste from Akash4");
+    res.send("Mulitiple route handler 4");
+  }
+);
+
 app.listen(3000, () => {
   console.log("Server is listening to the port 3000...");
 });
