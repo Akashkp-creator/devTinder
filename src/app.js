@@ -86,12 +86,35 @@ app.delete("/user", async (req, res) => {
 });
 
 // API - to Update a user by id
-app.patch("/user", async (req, res) => {
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params?.userId;
+  console.log(` the user id is ${userId}`);
   const newValue = req.body;
   console.log(newValue);
+
   try {
+    const ALLOWED_UPDATE_FIELDS = [
+      "skills",
+      "about",
+      "photoUrl",
+      "age",
+      "gender",
+    ];
+
+    const isAllowedFields = Object.keys(newValue).every((keys) =>
+      ALLOWED_UPDATE_FIELDS.includes(keys)
+    );
+
+    if (!isAllowedFields) {
+      return res.send(
+        "Update not allowed because of mismatch field or non-editable field"
+      );
+    }
+    if (Array.isArray(newValue?.skills) && newValue.skills.length > 10) {
+      return res.status(400).send("Only 10 skills allowed");
+    }
     const updatedValue = await User.findByIdAndUpdate(
-      { _id: req.body.userId },
+      { _id: userId },
       newValue,
       { returnDocument: "after", runValidators: true }
     );
