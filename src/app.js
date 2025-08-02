@@ -2,23 +2,65 @@ const express = require("express");
 const app = express();
 const { connectDB } = require("./config/database");
 const { User } = require("./models/user");
+const { validateSignUpData } = require("./utils/validation");
+const bcrypt = require("bcrypt");
 
 app.use(express.json()); //to use req.body,applicable for all the routes
 
 app.post("/signup", async (req, res) => {
+  const { firstName, lastName, emailId, password } = req.body;
+  // validate the inputs(ie. firstName, lastName, emailId, password) using helper function
+  const error = validateSignUpData(req);
+  if (error) {
+    return res.status(400).send(error);
+  }
+
+  // Encrypt(hash) the password before saving to DB using bcrypt library.
+  const hashedPassword = await bcrypt.hash(password, 10);
+  // console.log(hashedPassword);
+
   // Creating a new instance of the User model
-  const user = new User(req.body);
+  const user = new User({
+    firstName,
+    lastName,
+    emailId,
+    password: hashedPassword,
+  });
   try {
     await user.save();
     res.send("User Added Successfully ");
   } catch (error) {
-    res.status(400).send("Error in saving the user:" + error.message);
+    res.status(400).send("Error:" + error.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+    const user = await User.findOne({ emailId });
+    if (!user) {
+      throw new Error("Invalid Credentials");
+    }
+    // const validatePassword = await bcrypt.compare(
+    //   password,
+    //   "$2b$10$pJiiBnmBFOfsL0/sYF3/5OaQ6UJZyTf9/D7/9kK1Mt1xCFtHHlRYS"
+    // );
+    const validatePassword = await bcrypt.compare(password, user.password);
+    console.log(validatePassword);
+
+    if (validatePassword) {
+      res.send("user logged in Successfully");
+    } else {
+      throw new Error("Invalid Credentials");
+    }
+  } catch (error) {
+    res.status(400).send(error.message);
   }
 });
 
 // API to GET user by email
 app.get("/user", async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   try {
     const user = await User.findOne({ firstName: req.body.firstName });
     // const user = await User.findOne({ emailId: req.body.emailId });

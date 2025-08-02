@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-var validator = require("validator");
+const validator = require("validator");
 
 const userSchema = new mongoose.Schema(
   {
@@ -44,7 +44,6 @@ const userSchema = new mongoose.Schema(
     },
     age: {
       type: Number,
-      required: true,
       min: [18, "Must be at least 18"],
       max: [60, "Max age is 80"],
     },
