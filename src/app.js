@@ -4,8 +4,15 @@ const { connectDB } = require("./config/database");
 const { User } = require("./models/user");
 const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth");
+// const { getJWT, validatePassword } = require("./models/user");
 
-app.use(express.json()); //to use req.body,applicable for all the routes
+//to use req.body,applicable for all the routes, to re4d/convert/parse json(coming from the browser) to js object to read here
+app.use(express.json());
+// to read/parse the cookie coming from the browser.
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   const { firstName, lastName, emailId, password } = req.body;
@@ -45,10 +52,14 @@ app.post("/login", async (req, res) => {
     //   password,
     //   "$2b$10$pJiiBnmBFOfsL0/sYF3/5OaQ6UJZyTf9/D7/9kK1Mt1xCFtHHlRYS"
     // );
-    const validatePassword = await bcrypt.compare(password, user.password);
-    console.log(validatePassword);
+    const validatePassword = await user.validatePassword(password);
 
     if (validatePassword) {
+      const token = await user.getJWT();
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 24 * 7 * 3600000), // cookie will be removed after 7 days
+      });
+
       res.send("user logged in Successfully");
     } else {
       throw new Error("Invalid Credentials");
@@ -56,6 +67,18 @@ app.post("/login", async (req, res) => {
   } catch (error) {
     res.status(400).send(error.message);
   }
+});
+
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    res.send(req.user);
+  } catch (error) {
+    res.status(400).send("Error:" + error.message);
+  }
+});
+app.post("/sendConnectionRequest", userAuth, (req, res) => {
+  const user = req.user;
+  res.status(200).send(`${user.firstName}  sent you a connection request`);
 });
 
 // API to GET user by email
@@ -74,119 +97,6 @@ app.get("/user", async (req, res) => {
     res
       .status(500)
       .send("something went wrong in finding the user " + error.message);
-  }
-});
-// API to Feed API -GET   /feed -get all the users from the database
-app.get("/feed", async (req, res) => {
-  try {
-    const users = await User.find({});
-    if (users.length === 0) {
-      return res.status(404).send("no users found");
-    }
-    res.status(200).send(users);
-  } catch (error) {
-    res
-      .status(500)
-      .send("something went wrong in finding the users " + error.message);
-  }
-});
-
-// API - GET to findById
-app.get("/getByUserId", async (req, res) => {
-  console.log(req.body);
-  try {
-    const dataById = await User.findById({ _id: req.body._id });
-    if (!dataById) {
-      return res.status(404).send("invalid User Id");
-    }
-    res.status(200).send(dataById);
-  } catch (error) {
-    res
-      .status(500)
-      .send("something went wrong in finding the user " + error.message);
-  }
-});
-// API to delete an user
-app.delete("/user", async (req, res) => {
-  // const userId = req.body.userId;
-  try {
-    // can also use Model.findByIdAndDelete() only for id
-    // const deletedUser = await User.findOneAndDelete({ _id: userId });
-    // short hand for { _id: userId } can also be used as userId
-    // const deletedUser = await User.findOneAndDelete(userId);
-    // const deletedUser = await User.findOneAndDelete(req.body.lastName);
-    // the short hand is in above line
-    const deletedUser = await User.findOneAndDelete({
-      lastName: req.body.lastName,
-    });
-    res.send(`${deletedUser} is deleted`);
-  } catch (error) {
-    res
-      .status(500)
-      .send("something went wrong in deleting the user " + error.message);
-  }
-});
-
-// API - to Update a user by id
-app.patch("/user/:userId", async (req, res) => {
-  const userId = req.params?.userId;
-  console.log(` the user id is ${userId}`);
-  const newValue = req.body;
-  console.log(newValue);
-
-  try {
-    const ALLOWED_UPDATE_FIELDS = [
-      "skills",
-      "about",
-      "photoUrl",
-      "age",
-      "gender",
-    ];
-
-    const isAllowedFields = Object.keys(newValue).every((keys) =>
-      ALLOWED_UPDATE_FIELDS.includes(keys)
-    );
-
-    if (!isAllowedFields) {
-      return res.send(
-        "Update not allowed because of mismatch field or non-editable field"
-      );
-    }
-    if (Array.isArray(newValue?.skills) && newValue.skills.length > 10) {
-      return res.status(400).send("Only 10 skills allowed");
-    }
-    const updatedValue = await User.findByIdAndUpdate(
-      { _id: userId },
-      newValue,
-      { returnDocument: "after", runValidators: true }
-    );
-    console.log(updatedValue);
-    res.send("user updated successfully");
-  } catch (error) {
-    res
-      .status(500)
-      .send("something went wrong in updating the user " + error.message);
-  }
-});
-
-// api- update user by emailId
-app.patch("/userUpdateByEmail", async (req, res) => {
-  const newValue = req.body;
-  console.log(newValue);
-  try {
-    const updatedValue = await User.findOneAndUpdate(
-      {
-        emailId: req.body.emailId,
-      },
-      newValue,
-      { returnDocument: "after" }
-    );
-    console.log(updatedValue);
-    res.send("user updated successfully using emailId");
-  } catch (error) {
-    res
-      .status(500)
-      .send("something went wrong in updating the user " + error.message);
   }
 });
 
