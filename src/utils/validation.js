@@ -52,4 +52,66 @@ const validateSignUpData = (req) => {
   }
 };
 
-module.exports = { validateSignUpData };
+const validateEditProfileData = (req) => {
+  const allowEditFields = [
+    "firstName",
+    "lastName",
+    "age",
+    "gender",
+    "skills",
+    "about",
+    "photoUrl",
+  ];
+  const allowToEdit = Object.keys(req.body).every((key) =>
+    allowEditFields.includes(key)
+  );
+  return allowToEdit;
+};
+
+// to validate forgot password
+function validateForgotPassword(password) {
+  const minLength = 8;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
+
+  if (password.length < minLength) {
+    return {
+      valid: false,
+      message: "Password must be at least 8 characters long.",
+    };
+  }
+  if (!hasUpperCase) {
+    return {
+      valid: false,
+      message: "Password must include at least one uppercase letter.",
+    };
+  }
+  if (!hasLowerCase) {
+    return {
+      valid: false,
+      message: "Password must include at least one lowercase letter.",
+    };
+  }
+  if (!hasNumber) {
+    return {
+      valid: false,
+      message: "Password must include at least one number.",
+    };
+  }
+  if (!hasSpecialChar) {
+    return {
+      valid: false,
+      message: "Password must include at least one special character.",
+    };
+  }
+
+  return { valid: true };
+}
+
+module.exports = {
+  validateSignUpData,
+  validateEditProfileData,
+  validateForgotPassword,
+};

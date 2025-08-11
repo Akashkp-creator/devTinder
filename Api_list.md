@@ -10,7 +10,7 @@
 
 -GET /profile/view
 -PATCH /profile/edit
--PATCH /profile/password
+-PATCH /profile/password ==>API for forgot password.
 
 ## connectionRequestRouter
 
