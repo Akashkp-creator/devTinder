@@ -28,6 +28,6 @@
 
 -GET /user/requests/received ==> to get all the pending(ie.status:"interested")connection request for the loggedIn user.
 
--GET /user/connections
+-GET /user/connections ===>these are "accepted" connections
 
 -GET /user/feed
