@@ -26,6 +26,8 @@
 
 ## userRouter
 
+-GET /user/requests/received ==> to get all the pending(ie.status:"interested")connection request for the loggedIn user.
+
 -GET /user/connections
--GET /user/requests
+
 -GET /user/feed
