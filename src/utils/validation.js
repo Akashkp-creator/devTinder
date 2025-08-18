@@ -1,5 +1,5 @@
 const validateSignUpData = (req) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { firstName, lastName, emailId, password } = req.body;
 
   // ✅ First Name validation

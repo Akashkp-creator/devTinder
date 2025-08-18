@@ -22,9 +22,9 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
       return res.status(400).json({ error: "Invalid field update" });
     }
     const loggedInUser = req.user;
-    console.log(loggedInUser);
+    // console.log(loggedInUser);
     Object.keys(req.body).forEach((key) => (loggedInUser[key] = req.body[key]));
-    console.log(loggedInUser);
+    // console.log(loggedInUser);
     await loggedInUser.save();
 
     res.json({
