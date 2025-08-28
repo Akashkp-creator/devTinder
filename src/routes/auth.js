@@ -34,6 +34,9 @@ authRouter.post("/signup", async (req, res) => {
 authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
+    // console.log(req.body);
+    // console.log("Email:", req.body.emailId, "Password:", req.body.password);
+
     const user = await User.findOne({ emailId });
     if (!user) {
       throw new Error("Invalid Credentials");
@@ -50,7 +53,7 @@ authRouter.post("/login", async (req, res) => {
         expires: new Date(Date.now() + 24 * 7 * 3600000), // cookie will be removed after 7 days
       });
 
-      res.send("user logged in Successfully");
+      res.send(user);
     } else {
       throw new Error("Invalid Credentials");
     }
